@@ -1,0 +1,14 @@
+{
+    "clients": [
+        {
+            "name": "default",
+            "formatOptions": {
+                "hospitalNumber": "$2#",
+                "patientNumber": "/",
+                "patientName": "#N",
+                "speciemen": "#N",
+                "hopper": "#H"
+            }
+        }
+    ]
+}
