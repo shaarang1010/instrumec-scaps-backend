@@ -27,25 +27,26 @@ const formatData = (data, clientName) => {
     clientFormattingOptions["specimenNumber"]
   );
 
-  const printJob = `${data.substring(hopper + 3, hospitalId)},${data.substring(
-    hospitalId + 2,
-    patientNumber
-  )},${data.substring(patientNumber + 1, patientName)},${
+  const printJob = [
+    data.substring(hopper + 3, hospitalId),
+    data.substring(hospitalId + 2, patientNumber),
+    data.substring(patientNumber + 1, patientName),
     data.substring(patientName + 4, specimen).trim().length > 11
       ? `${data
           .substring(patientName + 4, specimen)
           .trim()
           .subtr(0, 9)}*`
-      : data.substring(patientName + 4, specimen).trim()
-  },${data.substring(specimenNumber - 1, specimenNumber)},${data.substring(
-    specimenNumber + 1,
-    data.length
-  )}`;
+      : data.substring(patientName + 4, specimen).trim(),
+    data.substring(specimenNumber - 1, specimenNumber),
+    data.substring(specimenNumber + 1, data.length),
+  ];
 
   return {
-    patientNumber: data.substring(patientNumber + 1, patientName),
-    patientName: data.substring(patientName + 4, specimen).trim(),
-    data: printJob,
+    hopper: printJob[0],
+    patientNumber: printJob[2],
+    patientName: printJob[3],
+    specimen: `${printJob[4]}.${printJob[5]}`,
+    data: printJob.toString(),
   };
 };
 

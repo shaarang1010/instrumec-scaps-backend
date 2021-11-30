@@ -2,10 +2,12 @@
 
 const fs = require("fs");
 
-const randomFileNameGenerator = (patientName, patientNumber) => {
+const xlsx = require("xlsx");
+
+const randomFileNameGenerator = (patientName, patientNumber, filetype) => {
   return `output-${patientNumber}-${patientName}-${
     new Date().toISOString().split(".")[0]
-  }.txt`;
+  }.${filetype ? "txt" : "xlsx"}`;
 };
 
 const writeToFile = (filepath, data) => {
@@ -13,12 +15,12 @@ const writeToFile = (filepath, data) => {
     data.patientName,
     data.patientNumber
   )}`;
-  fs.writeFile(filename, data.data, () => {
+  /*fs.writeFile(filename, data.data, () => {
     if (err) {
       return console.log(err);
     }
     console.log(`${filename} written successfully!`);
-  });
+  });*/
 };
 
 module.exports = {
