@@ -13,4 +13,47 @@ const formatOptions = require("../../formatter.json");
  * 7. send next job
  */
 
-const processDataFromClient = (data) => {};
+const formatData = (data, clientName) => {
+  const clientFormattingOptions = formatOptions.clients.filter(
+    (option) => option.name === clientName
+  )[0].formatOptions;
+
+  let hopper = data.indexOf(clientFormattingOptions["hopper"]);
+  let hospitalId = data.indexOf(clientFormattingOptions["hospitalNumber"]);
+  let patientNumber = data.indexOf(clientFormattingOptions["patientNumber"]);
+  let patientName = data.indexOf(clientFormattingOptions["patientName"]);
+  let specimen = data.lastIndexOf(clientFormattingOptions["specimen"]);
+  let specimenNumber = data.lastIndexOf(
+    clientFormattingOptions["specimenNumber"]
+  );
+
+  const printJob = `${data.substring(hopper + 3, hospitalId)},${data.substring(
+    hospitalId + 2,
+    patientNumber
+  )},${data.substring(patientNumber + 1, patientName)},${
+    data.substring(patientName + 4, specimen).trim().length > 11
+      ? `${data
+          .substring(patientName + 4, specimen)
+          .trim()
+          .subtr(0, 9)}*`
+      : data.substring(patientName + 4, specimen).trim()
+  },${data.substring(specimenNumber - 1, specimenNumber)},${data.substring(
+    specimenNumber + 1,
+    data.length
+  )}`;
+
+  return {
+    patientNumber: data.substring(patientNumber + 1, patientName),
+    patientName: data.substring(patientName + 4, specimen).trim(),
+    data: printJob,
+  };
+};
+
+const processDataFromClient = (data) => {
+  const printJob = formatData(data, "boxhill");
+  return printJob;
+};
+
+module.exports = {
+  processData: processDataFromClient,
+};

@@ -3,11 +3,23 @@
         {
             "name": "default",
             "formatOptions": {
-                "hospitalNumber": "$2#",
+                "hospitalNumber": "#2",
                 "patientNumber": "/",
                 "patientName": "#N",
-                "speciemen": "#N",
-                "hopper": "#H"
+                "specimen": "#N",
+                "specimenNumber": ".",
+                "hopper": "$#H"
+            }
+        },
+        {
+            "name": "boxhill",
+            "formatOptions": {
+                "hospitalNumber": "#2",
+                "patientNumber": "/",
+                "patientName": "#N#3",
+                "specimen": "#2",
+                "specimenNumber": ".",
+                "hopper": "$#H"
             }
         }
     ]

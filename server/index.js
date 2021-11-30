@@ -3,9 +3,10 @@ const Net = require("net");
 const os = require("os");
 // The port on which the server is listening.
 const port = 5050;
-
 //Get ip address
 const ipAddress = os.networkInterfaces()["Wi-Fi"][1].address;
+// import request handler
+const requestHandler = require("../middleware/requestshandlers");
 
 // Use net.createServer() in your code. This is just for illustration purpose.
 // Create a new TCP server.
@@ -30,6 +31,7 @@ server.on("connection", function (socket) {
   // The server can also receive data from the client by reading from its socket.
   socket.on("data", function (chunk) {
     console.log(`Data received from client: ${chunk.toString()}`);
+    console.log(requestHandler.processData(chunk.toString()));
   });
 
   // When the client requests to end the TCP connection with the server, the server
