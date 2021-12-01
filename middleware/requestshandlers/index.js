@@ -41,18 +41,23 @@ const formatData = (data, clientName) => {
     data.substring(specimenNumber + 1, data.length),
   ];
 
-  return {
-    hopper: printJob[0],
-    patientNumber: printJob[2],
-    patientName: printJob[3],
-    specimen: `${printJob[4]}.${printJob[5]}`,
-    data: printJob.toString(),
-  };
+  return new Promise((resolve, reject) => {
+    resolve({
+      hopper: printJob[0],
+      patientNumber: printJob[2],
+      patientName: printJob[3],
+      specimen: `${printJob[4]}${printJob[5]}`,
+      stringData: printJob.toString(),
+    });
+
+    reject({ error: "Error in processing data" });
+  });
 };
 
-const processDataFromClient = (data) => {
-  const printJob = formatData(data, "boxhill");
-  return printJob;
+const processDataFromClient = async (data) => {
+  const printJob = await formatData(data, "boxhill");
+  const fileLocation = formatOptions.filePath;
+  fileOperations.writeToFile(fileLocation, printJob, { fileType: "xlsx" });
 };
 
 module.exports = {
