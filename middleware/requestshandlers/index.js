@@ -55,6 +55,7 @@ const formatData = (data, clientName) => {
 };
 
 const processDataFromClient = async (data) => {
+  //TODO: add param to print jobs in batch
   const printJob = await formatData(data, "boxhill");
   const fileLocation = formatOptions.filePath;
   fileOperations.writeToFile(fileLocation, printJob, { fileType: "xlsx" });
