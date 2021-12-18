@@ -54,11 +54,21 @@ const formatData = (data, clientName) => {
   });
 };
 
-const processDataFromClient = async (data) => {
+const processDataFromClient = async (data, numberOfJobs = 1) => {
   //TODO: add param to print jobs in batch
-  const printJob = await formatData(data, "boxhill");
-  const fileLocation = formatOptions.filePath;
-  fileOperations.writeToFile(fileLocation, printJob, { fileType: "xlsx" });
+  let specimenNumberIndex = data.lastIndexOf(".");
+  console.log(specimenNumberIndex);
+  let specimenNumber = Number(
+    data.substring(specimenNumberIndex + 1, data.length)
+  );
+  console.log(specimenNumber);
+  for (let job = 0; job < numberOfJobs; job++) {
+    specimenNumber = specimenNumber + job;
+    let printData = data.substring(0, specimenNumberIndex + 1) + specimenNumber;
+    const printJob = await formatData(printData, "boxhill");
+    const fileLocation = formatOptions.filePath;
+    fileOperations.writeToFile(fileLocation, printJob, { fileType: "xlsx" });
+  }
 };
 
 module.exports = {
