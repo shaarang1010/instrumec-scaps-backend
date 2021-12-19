@@ -39,6 +39,7 @@ const writeToFile = (filepath, data, fileOptions) => {
     fs.writeFileSync(filename, data.stringData, "utf-8");
   }
   console.log(`${filename} written successfully!`);
+  return filename;
 };
 
 module.exports = {

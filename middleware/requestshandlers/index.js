@@ -67,7 +67,10 @@ const processDataFromClient = async (data, numberOfJobs = 1) => {
     let printData = data.substring(0, specimenNumberIndex + 1) + specimenNumber;
     const printJob = await formatData(printData, "boxhill");
     const fileLocation = formatOptions.filePath;
-    fileOperations.writeToFile(fileLocation, printJob, { fileType: "xlsx" });
+    let fileName = fileOperations.writeToFile(fileLocation, printJob, {
+      fileType: "xlsx",
+    });
+    console.log(fileName);
   }
 };
 
