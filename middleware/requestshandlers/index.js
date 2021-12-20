@@ -57,11 +57,9 @@ const formatData = (data, clientName) => {
 const processDataFromClient = async (data, numberOfJobs = 1) => {
   //TODO: add param to print jobs in batch
   let specimenNumberIndex = data.lastIndexOf(".");
-  console.log(specimenNumberIndex);
   let specimenNumber = Number(
     data.substring(specimenNumberIndex + 1, data.length)
   );
-  console.log(specimenNumber);
   for (let job = 0; job < numberOfJobs; job++) {
     specimenNumber = specimenNumber + job;
     let printData = data.substring(0, specimenNumberIndex + 1) + specimenNumber;
