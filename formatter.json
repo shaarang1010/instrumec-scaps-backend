@@ -24,5 +24,9 @@
         }
     ],
     "filePath": "Desktop\\Projects\\instrumec-scaps\\scaps-datalog",
-    "templatePath": "\\Desktop\\NEOPRODUCTS\\Neo\\SamLight\\SlLayout.sjf"
+    "templatePath": "\\Desktop\\NEOPRODUCTS\\Neo\\SamLight\\SlLayout.sjf",
+    "scapsConfig": {
+        "port": 4000,
+        "ipAddress": "127.0.0.1"
+    }
 }

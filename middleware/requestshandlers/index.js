@@ -72,6 +72,35 @@ const processDataFromClient = async (data, numberOfJobs = 1) => {
   }
 };
 
+const testScapsCommands = (cmd) => {
+  const client = new net.Socket();
+  client.connect(
+    {
+      port: formatOptions.scapsConfig.port,
+      host: formatOptions.scapsConfig.ipAddress,
+    },
+    function () {
+      // If there is no error, the server has accepted the request and created a new
+      // socket dedicated to us.
+      console.log("TCP connection established with the SCAPS SamLight.");
+
+      // The client can now send data to the server by writing to its socket.
+      console.log("CMD = " + cmd.toString());
+      client.write(cmd);
+    }
+  );
+
+  client.on("data", (data) => {
+    console.log("Data === " + data);
+    new Promise((resolve, reject) => {
+      resolve(data);
+
+      reject({ error: "Connection Issue", cci_error_code: data });
+    });
+  });
+};
+
 module.exports = {
   processData: processDataFromClient,
+  testScapsCommands: testScapsCommands,
 };
