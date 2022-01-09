@@ -1,7 +1,10 @@
 // Include Nodejs' net module.
 const Net = require("net");
 const os = require("os");
-const { testScapsCommands } = require("../middleware/requestshandlers");
+const {
+  testScapsCommands,
+  updateScapsTemplate,
+} = require("../middleware/requestshandlers");
 // The port on which the server is listening.
 const port = 5050;
 //Get ip address
@@ -11,8 +14,8 @@ const requestHandler = require("../middleware/requestshandlers");
 const {
   testConnection,
   isMarking,
-  loadSerialNumberFile,
-  resetSerialNumber,
+  loadEntityDataToTemplate,
+  markEntityByName,
 } = require("../middleware/scapsCommands");
 
 // Use net.createServer() in your code. This is just for illustration purpose.
@@ -23,26 +26,36 @@ let server = Net.createServer(function (connection) {
   connection.on("data", async function (data) {
     switch (data.toString()) {
       case "TEST":
-        let scapCommand = testConnection("BAU").toString();
+        let scapCommand = testConnection(
+          "Communication with Instrumec Scrittore is up.."
+        ).toString();
         console.log(scapCommand);
         let returnValue1 = await testScapsCommands(scapCommand);
         console.log(returnValue1);
         break;
-      case "WRK":
+      case "MIDDLEWARE":
         console.log("working....");
         break;
       case "ISMARKING":
         let returnValue2 = await testScapsCommands(isMarking());
         console.log(returnValue2);
         break;
-      case "LOADFILE":
-        let filename = `C:/Users/User/Desktop/Projects/instrumec-scaps/scaps-datalog/output-13166-BARRON P-2021-12-16T04-02-33.xlsx`;
-        let returnValue3 = await testScapsCommands(
-          loadSerialNumberFile("hopperNumber", "5")
-        );
-        console.log(returnValue3);
+      case "PRINTJOB":
+        let returnValue = await testScapsCommands(markEntityByName("", true));
+        console.log(returnValue);
         break;
       default:
+        let patientData = await requestHandler.processData(data.toString());
+
+        let setOfInstructions = [
+          loadEntityDataToTemplate("hopperNumber", patientData.hopper),
+          loadEntityDataToTemplate("patientName", patientData.patientName),
+          loadEntityDataToTemplate("specimen", patientData.specimen),
+          markEntityByName("", true),
+        ];
+
+        let dataReturn = await updateScapsTemplate(setOfInstructions);
+        console.log(dataReturn);
         break;
     }
   });
@@ -56,42 +69,14 @@ let server = Net.createServer(function (connection) {
 // The server listens to a socket for a client to make a connection request.
 // Think of a socket as an end point.
 server.listen(port, function () {
+  console.log("=== Instrumec-Scrittore SAMLight middleware ===\n");
   console.log(
     `Server listening for connection requests on socket ${ipAddress}:${port}`
   );
+  console.log(
+    "\nRefer to https://shorturl.at/dvyX0 for documentation on how to use"
+  );
 });
-
-// The server can also receive data from the client by reading from its socket.
-/*socket.on("data", async function (chunk) {
-    //console.log(`Data received from client: ${chunk.toString()}`);
-    //console.log(requestHandler.processData(chunk.toString()));
-    switch (chunk.toString) {
-      case "TEST":
-        let returnValue1 = await testScapsCommands(testConnection);
-        console.log(returnValue1);
-        break;
-      case "WRK":
-        console.log("working....");
-        break;
-      case "ISMARKING":
-        let returnValue2 = await testScapsCommands(isMarking);
-        console.log(returnValue2);
-      default:
-        break;
-    }
-  });
-
-  // When the client requests to end the TCP connection with the server, the server
-  // ends the connection.
-  socket.on("end", function () {
-    console.log("Closing connection with the client");
-  });
-
-  // Don't forget to catch error, for your own sake.
-  socket.on("error", function (err) {
-    console.log(`Error: ${err}`);
-  }); 
-});*/
 
 module.exports = {
   server,

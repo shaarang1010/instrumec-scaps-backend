@@ -1,6 +1,6 @@
 const net = require("net");
 const fileOperations = require("../filehandlers/fileOperations");
-const formatOptions = require("../../formatter.json");
+const formatOptions = require("../../setup/formatter.json");
 
 /**
  * PRINTJOB LOGIC
@@ -64,11 +64,12 @@ const processDataFromClient = async (data, numberOfJobs = 1) => {
     specimenNumber = specimenNumber + job;
     let printData = data.substring(0, specimenNumberIndex + 1) + specimenNumber;
     const printJob = await formatData(printData, "boxhill");
-    const fileLocation = formatOptions.filePath;
+    /*const fileLocation = formatOptions.filePath;
     let fileName = fileOperations.writeToFile(fileLocation, printJob, {
       fileType: "xlsx",
     });
-    console.log(fileName);
+    console.log(fileName);*/
+    return printJob;
   }
 };
 
@@ -85,13 +86,58 @@ const testScapsCommands = (cmd) => {
       console.log("TCP connection established with the SCAPS SamLight.");
 
       // The client can now send data to the server by writing to its socket.
-      console.log("CMD = " + cmd.toString());
+      console.log(
+        `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} to SAMlight> : ${cmd.toString()}`
+      );
       client.write(cmd);
     }
   );
 
   client.on("data", (data) => {
-    console.log("Data === " + data);
+    console.log(
+      `<SAMLight Response @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> => ${data}`
+    );
+    new Promise((resolve, reject) => {
+      resolve(data);
+
+      reject({ error: "Connection Issue", cci_error_code: data });
+    });
+  });
+};
+
+const updateScapsTemplate = (cmdInstructions) => {
+  const client = new net.Socket();
+  client.connect(
+    {
+      port: formatOptions.scapsConfig.port,
+      host: formatOptions.scapsConfig.ipAddress,
+    },
+    function () {
+      // If there is no error, the server has accepted the request and created a new
+      // socket dedicated to us.
+      console.log("TCP connection established with the SCAPS SamLight.");
+
+      // The client can now send data to the server by writing to its socket.
+      console.log(
+        `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} to SAMLight> : ${cmdInstructions[0].toString()}`
+      );
+      client.write(cmdInstructions[0]);
+      cmdInstructions.splice(0, 1);
+    }
+  );
+
+  client.on("data", (data) => {
+    console.log(
+      `<SAMLight Response @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> => ${data}`
+    );
+    while (cmdInstructions.length !== 0) {
+      console.log(
+        `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstructions[0].toString()}`
+      );
+      client.write(cmdInstructions[0]);
+      cmdInstructions.splice(0, 1);
+      break;
+    }
     new Promise((resolve, reject) => {
       resolve(data);
 
@@ -103,4 +149,5 @@ const testScapsCommands = (cmd) => {
 module.exports = {
   processData: processDataFromClient,
   testScapsCommands: testScapsCommands,
+  updateScapsTemplate: updateScapsTemplate,
 };

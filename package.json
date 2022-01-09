@@ -7,6 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js"
   },
+  "pkg": {
+    "scripts": "build/**/*.js",
+    "assets": "setup/**",
+    "targets": [
+      "node14-win-x64"
+    ],
+    "outputPath": "dist"
+  },
   "author": "Shaarang Tanpure",
   "license": "ISC",
   "dependencies": {
