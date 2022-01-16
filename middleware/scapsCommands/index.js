@@ -1,10 +1,10 @@
 const loadJob = (jobpath) => {
-  let cci_return = `ScCciLoadJob("${jobpath}", 1, 1, 1)<LF>`;
+  let cci_return = `ScCciLoadJob("${jobpath}", 1, 1, 1)\n`;
   return cci_return;
 };
 
 const isMarking = () => {
-  let cci_return = `ScCciIsMarking()<LF>`;
+  let cci_return = `ScCciIsMarking()\n`;
   return cci_return;
 };
 
@@ -15,22 +15,22 @@ const markEntityByName = (entityName, waitForMarkEnd) => {
    *  If entityName = "", it will mark entire job
    *  If entityName = more than 1, separate it by ;
    */
-  let cci_return = `ScCciMarkEntityByName("${entityName}", ${markValue})<LF>`;
+  let cci_return = `ScCciMarkEntityByName("${entityName}", ${markValue})\n`;
   return cci_return;
 };
 
 const loadEntityDataToTemplate = (entityName, filepath) => {
-  let cci_return = `ScCciSetEntityStringData("${entityName}", ${2}, "${filepath}")<LF>`;
+  let cci_return = `ScCciSetEntityStringData("${entityName}", ${2}, "${filepath}")\n`;
   return cci_return;
 };
 
 const resetSerialNumber = () => {
-  let cci_return = `ScCciResetSerialNumbers<LF>`;
+  let cci_return = `ScCciResetSerialNumbers\n`;
   return cci_return;
 };
 
 const testConnection = (message) => {
-  let cci_return = `ScCciTest("${message}")<LF>`;
+  let cci_return = `ScCciTest("${message}")\n`;
   return cci_return;
 };
 
