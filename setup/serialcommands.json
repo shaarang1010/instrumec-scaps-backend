@@ -9,5 +9,12 @@
     "setSlide": "set slide:",
     "getSlide": "get slide",
     "clearError": "clear error"
+  },
+  "serialConfig": {
+    "port": "COM3",
+    "baudRate": 15000,
+    "dataBits": 8,
+    "parity": "NONE",
+    "stopBits": 1
   }
 }
