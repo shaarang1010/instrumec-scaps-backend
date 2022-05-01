@@ -18,6 +18,9 @@ const {
   markEntityByName,
 } = require("../middleware/scapsCommands");
 
+//import serial handlers
+const {writeToSerial,readSerialData}  = require("../serial");
+
 // Use net.createServer() in your code. This is just for illustration purpose.
 // Create a new TCP server.
 let server = Net.createServer(function (connection) {
