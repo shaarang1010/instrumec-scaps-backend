@@ -56,6 +56,18 @@
    **Wait_For_Mark_End**=If it is set to 0, the function returns immediately and the client application can start other tasks while the scanner application is marking in background. If it is set to 1, function returns at the end of marking.
    ```
 
+### SERIAL COMM
+
+#### CONFIG
+
+> BAUD RATE : 15200
+> DATA BITS: 8
+> STOP BITS: 1
+
+### ACCESS COMMANDS
+
+Access Commands in `setup/serialcommands.json`
+
 ### Note:
 
 - Add <LF> at the end of command to SAMLight. SAMLight returns <LF>
