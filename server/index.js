@@ -1,6 +1,7 @@
 // Include Nodejs' net module.
 const Net = require("net");
 const os = require("os");
+const serialDataFormatters = require("../middleware/helpers/serialDataFormatters");
 const {
   testScapsCommands,
   updateScapsTemplate,
@@ -19,7 +20,8 @@ const {
 } = require("../middleware/scapsCommands");
 
 //import serial handlers
-const {writeToSerial,readSerialData}  = require("../serial");
+const { writeToSerial, readSerialData } = require("../serial");
+const { serialCommands } = require("../setup/serialcommands.json");
 
 // Use net.createServer() in your code. This is just for illustration purpose.
 // Create a new TCP server.
@@ -46,6 +48,30 @@ let server = Net.createServer(function (connection) {
       case "PRINTJOB":
         let returnValue = await testScapsCommands(markEntityByName("", true));
         console.log(returnValue);
+        break;
+      case "REBOOT":
+        let rebootMessage = serialDataFormatters(serialCommands.reboot);
+        let reboot = await writeToSerial(rebootMessage);
+        console.log(reboot);
+        break;
+      case "ACTIVATE_LASER":
+        let message = serialDataFormatters(serialCommands.activateLaser, 1);
+        const activateLaser = await writeToSerial(message);
+        console.log(activateLaser);
+        break;
+      case "RESCAN":
+        let carouselRescanMessage = serialDataFormatters(
+          serialCommands.carouselRescan
+        );
+        const rescan = await writeToSerial(carouselRescanMessage);
+        console.log(rescan);
+        break;
+      case "SET_POS":
+        let currentPosMessage = serialDataFormatters(
+          serialCommands.setCurrentPos
+        );
+        const setCurrentPos = await writeToSerial(currentPosMessage);
+        console.log(setCurrentPos);
         break;
       default:
         let patientData = await requestHandler.processData(data.toString());

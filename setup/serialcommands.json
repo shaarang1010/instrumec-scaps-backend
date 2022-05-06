@@ -4,7 +4,7 @@
     "activateLaser": "laser out remote ctrl:",
     "carouselRescan": "carousel rescan",
     "magazineCheck": "magazine check",
-    "getCurrentPos": "carousel set pos:",
+    "getCurrentPos": "carousel get pos",
     "setCurrentPos": "carousel set pos:",
     "setSlide": "set slide:",
     "getSlide": "get slide",
