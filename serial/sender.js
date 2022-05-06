@@ -14,6 +14,10 @@ const writeToSerial = (message) => {
       return console.log("Error on write: ", err.message);
     }
     console.log("Message sent successfully");
+    new Promise((resolve, reject) => {
+      resolve("sent message"); // put more useful data to be resolved
+      reject({ error: err });
+    });
   });
 };
 

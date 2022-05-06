@@ -17,6 +17,10 @@ const readSerialData = () => {
     console.log("-- Connection opened --");
     parser.on("data", function (data) {
       console.log("Data received: " + data);
+      new Promise((resolve, reject) => {
+        resolve(data);
+        reject({ error: err });
+      });
     });
   });
 };
