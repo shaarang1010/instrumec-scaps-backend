@@ -1,4 +1,4 @@
-const writeToSerial = require("./sender");
-const readSerialData = require("./receiver");
+const writeToSerial = require("./sender").writeToSerial;
+const readSerialData = require("./sender").readSerialData;
 
 module.exports = { writeToSerial, readSerialData };

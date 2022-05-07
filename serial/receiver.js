@@ -1,16 +1,17 @@
 var SerialPort = require("serialport").SerialPort;
 const serialConfig = require("../setup/serialcommands.json");
-const Readline = require("@serialport/parser-readline");
+const { ReadlineParser } = require("@serialport/parser-readline");
 
 const { port, baudRate, dataBits, stopBits } = serialConfig.serialConfig;
 
-var serialPort = new SerialPort(port, {
-  baudRate: 9600,
+var serialPort = new SerialPort({
+  path: port,
+  baudRate: baudRate
 });
 
 //parse serial data
 const readSerialData = () => {
-  const parser = new Readline();
+  const parser = new ReadlineParser({ delimiter: "\r\n" });
   port.pipe(parser);
 
   serialPort.on("open", function () {
