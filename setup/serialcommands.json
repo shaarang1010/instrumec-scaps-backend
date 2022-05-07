@@ -8,7 +8,10 @@
     "setCurrentPos": "carousel set pos:",
     "setSlide": "set slide:",
     "getSlide": "get slide",
-    "clearError": "clear error"
+    "clearError": "clear error",
+    "help": "help",
+    "test": "test",
+    "version": "version"
   },
   "serialConfig": {
     "port": "COM3",

@@ -1,4 +1,4 @@
-const SerialPort = require("serialport");
+const SerialPort = require("serialport").SerialPort;
 const serialConfig = require("../setup/serialcommands.json");
 
 const { port, baudRate, dataBits, stopBits } = serialConfig.serialConfig;

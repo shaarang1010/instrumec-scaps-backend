@@ -2,10 +2,7 @@
 const Net = require("net");
 const os = require("os");
 const serialDataFormatters = require("../middleware/helpers/serialDataFormatters");
-const {
-  testScapsCommands,
-  updateScapsTemplate,
-} = require("../middleware/requestshandlers");
+const { testScapsCommands, updateScapsTemplate } = require("../middleware/requestshandlers");
 // The port on which the server is listening.
 const port = 5050;
 //Get ip address
@@ -16,7 +13,7 @@ const {
   testConnection,
   isMarking,
   loadEntityDataToTemplate,
-  markEntityByName,
+  markEntityByName
 } = require("../middleware/scapsCommands");
 
 //import serial handlers
@@ -31,9 +28,7 @@ let server = Net.createServer(function (connection) {
   connection.on("data", async function (data) {
     switch (data.toString()) {
       case "TEST":
-        let scapCommand = testConnection(
-          "Communication with Instrumec Scrittore is up.."
-        ).toString();
+        let scapCommand = testConnection("Communication with Instrumec Scrittore is up..").toString();
         console.log(scapCommand);
         let returnValue1 = await testScapsCommands(scapCommand);
         console.log(returnValue1);
@@ -52,27 +47,37 @@ let server = Net.createServer(function (connection) {
       case "REBOOT":
         let rebootMessage = serialDataFormatters(serialCommands.reboot);
         let reboot = await writeToSerial(rebootMessage);
-        console.log(reboot);
-        break;
+        return await readSerialData();
       case "ACTIVATE_LASER":
         let message = serialDataFormatters(serialCommands.activateLaser, 1);
         const activateLaser = await writeToSerial(message);
-        console.log(activateLaser);
-        break;
+        return await readSerialData();
       case "RESCAN":
-        let carouselRescanMessage = serialDataFormatters(
-          serialCommands.carouselRescan
-        );
+        let carouselRescanMessage = serialDataFormatters(serialCommands.carouselRescan);
         const rescan = await writeToSerial(carouselRescanMessage);
         console.log(rescan);
-        break;
+        return await readSerialData();
+      case "MAGZINE_CHECK":
+        let magzineCheckMessage = serialDataFormatters(serialCommands.magazineCheck);
+        const magzineCheck = await writeToSerial(magzineCheckMessage);
+        console.log(magzineCheck);
+        return await readSerialData();
+      case "GET_POS":
+        let getPositionMessage = serialDataFormatters(serialCommands.getCurrentPos);
+        const currentPosition = await writeToSerial(getPositionMessage);
+        console.log(currentPosition);
+        return await readSerialData();
       case "SET_POS":
-        let currentPosMessage = serialDataFormatters(
-          serialCommands.setCurrentPos
-        );
+        let currentPosMessage = serialDataFormatters(serialCommands.setCurrentPos);
         const setCurrentPos = await writeToSerial(currentPosMessage);
         console.log(setCurrentPos);
-        break;
+        return await readSerialData();
+      case "TEST_PRINT":
+        let testMessage = serialDataFormatters(serialCommands.test);
+        const testSerial = await writeToSerial(testMessage);
+        //const readMessage = await readSerialData();
+        console.log(testSerial);
+        return await readSerialData();
       default:
         let patientData = await requestHandler.processData(data.toString());
 
@@ -80,7 +85,7 @@ let server = Net.createServer(function (connection) {
           loadEntityDataToTemplate("hopperNumber", patientData.hopper),
           loadEntityDataToTemplate("patientName", patientData.patientName),
           loadEntityDataToTemplate("specimen", patientData.specimen),
-          markEntityByName("", true),
+          markEntityByName("", true)
         ];
 
         let dataReturn = await updateScapsTemplate(setOfInstructions);
@@ -99,14 +104,10 @@ let server = Net.createServer(function (connection) {
 // Think of a socket as an end point.
 server.listen(port, function () {
   console.log("=== Instrumec-Scrittore SAMLight middleware ===\n");
-  console.log(
-    `Server listening for connection requests on socket ${ipAddress}:${port}`
-  );
-  console.log(
-    "\nRefer to https://shorturl.at/dvyX0 for documentation on how to use"
-  );
+  console.log(`Server listening for connection requests on socket ${ipAddress}:${port}`);
+  console.log("\nRefer to https://shorturl.at/dvyX0 for documentation on how to use");
 });
 
 module.exports = {
-  server,
+  server
 };
