@@ -3,7 +3,7 @@
     "reboot": { "send": "rst", "expect": "rebooting" },
     "activateLaser": { "send": "laser out remote ctrl:", "expect": "Pulling IO High to enable laser" },
     "carouselRescan": { "send": "carousel rescan", "expect": "Cmd success" },
-    "magazineCheck": { "send": "magazine check", "expect": ".*" },
+    "magazineCheck": { "send": "magazine check", "expect": "0 0 0" },
     "getCurrentPos": { "send": "carousel get pos", "expect": "Carousel current position" },
     "setCurrentPos": { "send": "carousel set pos:", "expect": "Cmd success" },
     "setSlide": { "send": "set slide:", "expect": "Cmd success" },

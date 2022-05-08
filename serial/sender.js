@@ -1,7 +1,7 @@
 const SerialPort = require("serialport").SerialPort;
 const serialConfig = require("../setup/serialcommands.json");
 const { ReadlineParser } = require("@serialport/parser-readline");
-const serialDataFormatters = require("../middleware/helpers/serialDataFormatters");
+const { serialDataFormatters, matchExpectations } = require("../middleware/helpers/serialDataFormatters");
 
 const { port, baudRate, dataBits, stopBits } = serialConfig.serialConfig;
 
@@ -11,20 +11,19 @@ var serialPort = new SerialPort({
 });
 
 const writeToSerial = (message) => {
-  const dat = serialDataFormatters("test");
-  serialPort.write(dat, function (err) {
+  serialPort.write(message, function (err) {
     if (err) {
       return console.log("Error on write: ", err.message);
     }
     console.log("Message sent successfully");
-    // new Promise((resolve, reject) => {
-    //   resolve("sent message"); // put more useful data to be resolved
-    //   reject({ error: err });
-    // });
+    new Promise((resolve, reject) => {
+      resolve("sent message"); // put more useful data to be resolved
+      reject({ error: err });
+    });
   });
 };
 
-const readSerialData = () => {
+const readSerialData = (expectedResponse) => {
   const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
   //console.log(parser);
 
@@ -32,12 +31,13 @@ const readSerialData = () => {
     console.log("-- Connection opened --");
   });
   serialPort.on("data", function (data) {
-    console.log(data);
+    console.log(data.toString());
     console.log("Data received: " + data);
-    // new Promise((resolve, reject) => {
-    //   resolve(data);
-    //   reject({ error: err });
-    // });
+    const isMatchExpectation = matchExpectations(data, expectedResponse);
+    new Promise((resolve, reject) => {
+      resolve({ data: data, repsonseMatch: isMatchExpectation });
+      reject({ error: err });
+    });
   });
 };
 

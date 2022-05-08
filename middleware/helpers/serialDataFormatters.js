@@ -5,4 +5,8 @@ const serialDataFormatters = (message, integerValue) => {
   return `${messageToSend}\n`;
 };
 
-module.exports = serialDataFormatters;
+const matchExpectations = (message, expectation) => {
+  return message.toString().includes(expectation);
+};
+
+module.exports = { serialDataFormatters, matchExpectations };

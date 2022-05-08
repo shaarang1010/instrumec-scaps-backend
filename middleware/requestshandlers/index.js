@@ -14,18 +14,14 @@ const formatOptions = require("../../setup/formatter.json");
  */
 
 const formatData = (data, clientName) => {
-  const clientFormattingOptions = formatOptions.clients.filter(
-    (option) => option.name === clientName
-  )[0].formatOptions;
+  const clientFormattingOptions = formatOptions.clients.filter((option) => option.name === clientName)[0].formatOptions;
 
   let hopper = data.indexOf(clientFormattingOptions["hopper"]);
   let hospitalId = data.indexOf(clientFormattingOptions["hospitalNumber"]);
   let patientNumber = data.indexOf(clientFormattingOptions["patientNumber"]);
   let patientName = data.indexOf(clientFormattingOptions["patientName"]);
   let specimen = data.lastIndexOf(clientFormattingOptions["specimen"]);
-  let specimenNumber = data.lastIndexOf(
-    clientFormattingOptions["specimenNumber"]
-  );
+  let specimenNumber = data.lastIndexOf(clientFormattingOptions["specimenNumber"]);
 
   const printJob = [
     data.substring(hopper + 3, hospitalId),
@@ -38,7 +34,7 @@ const formatData = (data, clientName) => {
           .subtr(0, 9)}*`
       : data.substring(patientName + 4, specimen).trim(),
     data.substring(specimenNumber - 1, specimenNumber),
-    data.substring(specimenNumber + 1, data.length),
+    data.substring(specimenNumber + 1, data.length)
   ];
 
   return new Promise((resolve, reject) => {
@@ -47,7 +43,7 @@ const formatData = (data, clientName) => {
       patientNumber: printJob[2],
       patientName: printJob[3],
       specimen: `${printJob[4]}${printJob[5]}`,
-      stringData: printJob.toString(),
+      stringData: printJob.toString()
     });
 
     reject({ error: "Error in processing data" });
@@ -57,12 +53,11 @@ const formatData = (data, clientName) => {
 const processDataFromClient = async (data, numberOfJobs = 1) => {
   //TODO: add param to print jobs in batch
   let specimenNumberIndex = data.lastIndexOf(".");
-  let specimenNumber = Number(
-    data.substring(specimenNumberIndex + 1, data.length)
-  );
+  let specimenNumber = Number(data.substring(specimenNumberIndex + 1, data.length));
   for (let job = 0; job < numberOfJobs; job++) {
     specimenNumber = specimenNumber + job;
     let printData = data.substring(0, specimenNumberIndex + 1) + specimenNumber;
+
     const printJob = await formatData(printData, "boxhill");
     /*const fileLocation = formatOptions.filePath;
     let fileName = fileOperations.writeToFile(fileLocation, printJob, {
@@ -78,7 +73,7 @@ const testScapsCommands = (cmd) => {
   client.connect(
     {
       port: formatOptions.scapsConfig.port,
-      host: formatOptions.scapsConfig.ipAddress,
+      host: formatOptions.scapsConfig.ipAddress
     },
     function () {
       // If there is no error, the server has accepted the request and created a new
@@ -110,7 +105,7 @@ const updateScapsTemplate = (cmdInstructions) => {
   client.connect(
     {
       port: formatOptions.scapsConfig.port,
-      host: formatOptions.scapsConfig.ipAddress,
+      host: formatOptions.scapsConfig.ipAddress
     },
     function () {
       // If there is no error, the server has accepted the request and created a new
@@ -144,10 +139,14 @@ const updateScapsTemplate = (cmdInstructions) => {
       reject({ error: "Connection Issue", cci_error_code: data });
     });
   });
+
+  client.on("end", () => {
+    console.log("disconnect from client");
+  });
 };
 
 module.exports = {
   processData: processDataFromClient,
   testScapsCommands: testScapsCommands,
-  updateScapsTemplate: updateScapsTemplate,
+  updateScapsTemplate: updateScapsTemplate
 };
