@@ -106,14 +106,12 @@ let server = Net.createServer(function (connection) {
         return await readSerialData(serialCommands.help.expect);
       default:
         let patientData = await requestHandler.processData(data.toString());
-        console.log(patientData);
-        maptoHopper(parseInt(patientData.hopper));
+        maptoHopper(awaitwriteToSerial(magzineCheckMessage), parseInt(patientData.hopper));
         const setHopperPos = await writeToSerial(
           serialDataFormatters(serialCommands.setCurrentPos.send, parseInt(patientData.hopper) - 1)
         );
-        console.log(setHopperPos);
+
         const response = await readSerialData(serialCommands.setCurrentPos.expect);
-        console.log(response);
 
         let setOfInstructions = [
           loadEntityDataToTemplate("hopperNumber", patientData.hopper),
@@ -126,6 +124,10 @@ let server = Net.createServer(function (connection) {
         console.log(dataReturn);
         break;
     }
+  });
+
+  connection.on("end", function () {
+    console.log("client disconnected");
   });
 
   connection.pipe(connection);
