@@ -1,16 +1,16 @@
 {
   "serialCommands": {
-    "reboot": "rst",
-    "activateLaser": "laser out remote ctrl:",
-    "carouselRescan": "carousel rescan",
-    "magazineCheck": "magazine check",
-    "getCurrentPos": "carousel get pos",
-    "setCurrentPos": "carousel set pos:",
-    "setSlide": "set slide:",
-    "getSlide": "get slide",
-    "clearError": "clear error",
-    "help": "help",
-    "test": "test",
+    "reboot": { "send": "rst", "expect": "rebooting" },
+    "activateLaser": { "send": "laser out remote ctrl:", "expect": "Pulling IO High to enable laser" },
+    "carouselRescan": { "send": "carousel rescan", "expect": "Cmd success" },
+    "magazineCheck": { "send": "magazine check", "expect": ".*" },
+    "getCurrentPos": { "send": "carousel get pos", "expect": "Carousel current position" },
+    "setCurrentPos": { "send": "carousel set pos:", "expect": "Cmd success" },
+    "setSlide": { "send": "set slide:", "expect": "Cmd success" },
+    "getSlide": { "send": "get slide", "expect": "Slide: " },
+    "clearError": { "send": "clear error", "expect": "Printing resumed" },
+    "help": { "send": "help", "expect": "" },
+    "test": { "send": "test", "expect": "InstrumeC test" },
     "version": "version"
   },
   "serialConfig": {

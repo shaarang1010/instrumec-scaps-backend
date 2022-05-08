@@ -45,38 +45,48 @@ let server = Net.createServer(function (connection) {
         console.log(returnValue);
         break;
       case "REBOOT":
-        let rebootMessage = serialDataFormatters(serialCommands.reboot);
+        let rebootMessage = serialDataFormatters(serialCommands.reboot.send);
         let reboot = await writeToSerial(rebootMessage);
         return await readSerialData();
       case "ACTIVATE_LASER":
-        let message = serialDataFormatters(serialCommands.activateLaser, 1);
+        let message = serialDataFormatters(serialCommands.activateLaser.send, 1);
         const activateLaser = await writeToSerial(message);
         return await readSerialData();
+      case "DE_ACTIVATE_LASER":
+        let deActivatemessage = serialDataFormatters(serialCommands.activateLaser.send, 0);
+        const deActivateLaser = await writeToSerial(deActivatemessage);
+        return await readSerialData();
       case "RESCAN":
-        let carouselRescanMessage = serialDataFormatters(serialCommands.carouselRescan);
+        let carouselRescanMessage = serialDataFormatters(serialCommands.carouselRescan.send);
         const rescan = await writeToSerial(carouselRescanMessage);
         console.log(rescan);
         return await readSerialData();
       case "MAGZINE_CHECK":
-        let magzineCheckMessage = serialDataFormatters(serialCommands.magazineCheck);
+        let magzineCheckMessage = serialDataFormatters(serialCommands.magazineCheck.send);
         const magzineCheck = await writeToSerial(magzineCheckMessage);
         console.log(magzineCheck);
         return await readSerialData();
       case "GET_POS":
-        let getPositionMessage = serialDataFormatters(serialCommands.getCurrentPos);
+        let getPositionMessage = serialDataFormatters(serialCommands.getCurrentPos.send);
         const currentPosition = await writeToSerial(getPositionMessage);
         console.log(currentPosition);
         return await readSerialData();
       case "SET_POS":
-        let currentPosMessage = serialDataFormatters(serialCommands.setCurrentPos);
+        let currentPosMessage = serialDataFormatters(serialCommands.setCurrentPos.send);
         const setCurrentPos = await writeToSerial(currentPosMessage);
         console.log(setCurrentPos);
         return await readSerialData();
       case "TEST_PRINT":
-        let testMessage = serialDataFormatters(serialCommands.test);
+        let testMessage = serialDataFormatters(serialCommands.test.send);
         const testSerial = await writeToSerial(testMessage);
         //const readMessage = await readSerialData();
         console.log(testSerial);
+        return await readSerialData();
+      case "HELP":
+        let helpMessage = serialDataFormatters(serialCommands.help.send);
+        const helpSerial = await writeToSerial(helpMessage);
+        //const readMessage = await readSerialData();
+        console.log(helpSerial);
         return await readSerialData();
       default:
         let patientData = await requestHandler.processData(data.toString());
