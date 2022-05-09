@@ -24,6 +24,7 @@
     "lodash": "^4.17.21",
     "node-cache": "^5.1.2",
     "nodemon": "^2.0.15",
+    "promise-socket": "^7.0.0",
     "serialport": "^10.4.0",
     "xlsx": "^0.17.4"
   }

@@ -1,6 +1,7 @@
 const net = require("net");
 const fileOperations = require("../filehandlers/fileOperations");
 const formatOptions = require("../../setup/formatter.json");
+const { PromiseSocket, TimeoutError } = require("promise-socket");
 
 /**
  * PRINTJOB LOGIC
@@ -68,8 +69,9 @@ const processDataFromClient = async (data, numberOfJobs = 1) => {
   }
 };
 
-const testScapsCommands = (cmd) => {
+const testScapsCommands = async (cmd) => {
   const client = new net.Socket();
+  const promiseSocket = new PromiseSocket(client);
   client.connect(
     {
       port: formatOptions.scapsConfig.port,
@@ -139,7 +141,9 @@ const updateScapsTemplate = (cmdInstructions) => {
 
       reject({ error: "Connection Issue", cci_error_code: data });
     });
-    client.destroy();
+    client.on("end", () => {
+      console.log("Ending connection");
+    });
   });
 };
 

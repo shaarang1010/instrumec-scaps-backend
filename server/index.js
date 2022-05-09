@@ -111,26 +111,25 @@ let server = Net.createServer(function (connection) {
         // const magzineMessage = serialDataFormatters(serialCommands.magazineCheck.send);
         // const numberOfCassettes = await writeToSerial(magzineMessage);
         // const data = await readSerialData(serialCommands.magazineCheck.expect, true);
-        // console.log("In data", data);
-        console.log(maptoHopper(parseInt("2")));
         receivedData.map(async (obj) => {
           let patientData = await requestHandler.processData(obj);
-          //maptoHopper(numberOfCassettes, parseInt(patientData.hopper));
-          // const setHopperPos = await writeToSerial(
-          //   serialDataFormatters(serialCommands.setCurrentPos.send, parseInt(patientData.hopper) - 1)
-          // );
+          const hopper = maptoHopper(parseInt(patientData.hopper));
+          console.log("hopper possition =======", hopper);
+          const setHopperPos = await writeToSerial(serialDataFormatters(serialCommands.setCurrentPos.send, hopper - 1));
+          console.log(setHopperPos);
+          const response = await readSerialData(serialCommands.setCurrentPos.expect);
+          console.log(response);
+          let setOfInstructions = [
+            loadEntityDataToTemplate("hopperNumber", patientData.hopper),
+            loadEntityDataToTemplate("patientName", patientData.patientName),
+            loadEntityDataToTemplate("specimen", patientData.specimen),
+            markEntityByName("", true)
+          ];
 
-          // const response = await readSerialData(serialCommands.setCurrentPos.expect);
-          // console.log(response);
-          // let setOfInstructions = [
-          //   loadEntityDataToTemplate("hopperNumber", patientData.hopper),
-          //   loadEntityDataToTemplate("patientName", patientData.patientName),
-          //   loadEntityDataToTemplate("specimen", patientData.specimen),
-          //   markEntityByName("", true)
-          // ];
+          console.log(setOfInstructions);
 
-          // let dataReturn = await updateScapsTemplate(setOfInstructions);
-          // console.log(dataReturn);
+          let dataReturn = await updateScapsTemplate(setOfInstructions);
+          console.log(dataReturn);
         });
         break;
     }
