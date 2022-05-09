@@ -97,6 +97,7 @@ const testScapsCommands = (cmd) => {
 
       reject({ error: "Connection Issue", cci_error_code: data });
     });
+    client.destroy();
   });
 };
 
@@ -138,10 +139,7 @@ const updateScapsTemplate = (cmdInstructions) => {
 
       reject({ error: "Connection Issue", cci_error_code: data });
     });
-  });
-
-  client.on("end", () => {
-    console.log("disconnect from client");
+    client.destroy();
   });
 };
 

@@ -22,15 +22,17 @@ const { serialCommands } = require("../setup/serialcommands.json");
 
 //import hopper file
 
-const maptoHopper = require("../middleware/helpers/hopperMapper");
+let hopperCount = 0;
+
+const maptoHopper = require("../middleware/helpers/hopperMapper").maptoHopper;
 
 // Use net.createServer() in your code. This is just for illustration purpose.
 // Create a new TCP server.
 let server = Net.createServer(function (connection) {
   console.log("client connected");
 
-  connection.on("data", async function (data) {
-    switch (data.toString()) {
+  connection.on("data", async function (info) {
+    switch (info.toString()) {
       case "TEST":
         let scapCommand = testConnection("Communication with Instrumec Scrittore is up..").toString();
         console.log(scapCommand);
@@ -70,7 +72,7 @@ let server = Net.createServer(function (connection) {
         let magzineCheckMessage = serialDataFormatters(serialCommands.magazineCheck.send);
         const magzineCheck = await writeToSerial(magzineCheckMessage);
         console.log(magzineCheck);
-        console.log(await readSerialData(serialCommands.magazineCheck.expect));
+        console.log(await readSerialData(serialCommands.magazineCheck.expect, true));
         break;
       case "GET_POS":
         let getPositionMessage = serialDataFormatters(serialCommands.getCurrentPos.send);
@@ -105,23 +107,31 @@ let server = Net.createServer(function (connection) {
         console.log(helpSerial);
         return await readSerialData(serialCommands.help.expect);
       default:
-        let patientData = await requestHandler.processData(data.toString());
-        maptoHopper(awaitwriteToSerial(magzineCheckMessage), parseInt(patientData.hopper));
-        const setHopperPos = await writeToSerial(
-          serialDataFormatters(serialCommands.setCurrentPos.send, parseInt(patientData.hopper) - 1)
-        );
+        const receivedData = info.toString().split("\n");
+        // const magzineMessage = serialDataFormatters(serialCommands.magazineCheck.send);
+        // const numberOfCassettes = await writeToSerial(magzineMessage);
+        // const data = await readSerialData(serialCommands.magazineCheck.expect, true);
+        // console.log("In data", data);
+        console.log(maptoHopper(parseInt("2")));
+        receivedData.map(async (obj) => {
+          let patientData = await requestHandler.processData(obj);
+          //maptoHopper(numberOfCassettes, parseInt(patientData.hopper));
+          // const setHopperPos = await writeToSerial(
+          //   serialDataFormatters(serialCommands.setCurrentPos.send, parseInt(patientData.hopper) - 1)
+          // );
 
-        const response = await readSerialData(serialCommands.setCurrentPos.expect);
+          // const response = await readSerialData(serialCommands.setCurrentPos.expect);
+          // console.log(response);
+          // let setOfInstructions = [
+          //   loadEntityDataToTemplate("hopperNumber", patientData.hopper),
+          //   loadEntityDataToTemplate("patientName", patientData.patientName),
+          //   loadEntityDataToTemplate("specimen", patientData.specimen),
+          //   markEntityByName("", true)
+          // ];
 
-        let setOfInstructions = [
-          loadEntityDataToTemplate("hopperNumber", patientData.hopper),
-          loadEntityDataToTemplate("patientName", patientData.patientName),
-          loadEntityDataToTemplate("specimen", patientData.specimen),
-          markEntityByName("", true)
-        ];
-
-        let dataReturn = await updateScapsTemplate(setOfInstructions);
-        console.log(dataReturn);
+          // let dataReturn = await updateScapsTemplate(setOfInstructions);
+          // console.log(dataReturn);
+        });
         break;
     }
   });

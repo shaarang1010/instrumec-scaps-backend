@@ -2,6 +2,8 @@ const SerialPort = require("serialport").SerialPort;
 const serialConfig = require("../setup/serialcommands.json");
 const { ReadlineParser } = require("@serialport/parser-readline");
 const { serialDataFormatters, matchExpectations } = require("../middleware/helpers/serialDataFormatters");
+const { setHopperCount, formatHopperCount } = require("../middleware/helpers/hopperMapper");
+const { setToCache } = require("../middleware/helpers/cacheCommands");
 
 const { port, baudRate, dataBits, stopBits } = serialConfig.serialConfig;
 
@@ -16,26 +18,32 @@ const writeToSerial = (message) => {
       return console.log("Error on write: ", err.message);
     }
     console.log("Message sent successfully");
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       resolve("sent message"); // put more useful data to be resolved
       reject({ error: err });
     });
   });
 };
 
-const readSerialData = (expectedResponse) => {
+const readSerialData = (expectedResponse, saveMagzineCount = false) => {
   const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
   //console.log(parser);
-
   serialPort.on("open", function () {
     console.log("-- Connection opened --");
   });
-  serialPort.on("data", function (data) {
-    console.log(data.toString());
-    console.log("Data received: " + data);
-    const isMatchExpectation = matchExpectations(data, expectedResponse);
-    new Promise((resolve, reject) => {
-      resolve({ data: data, repsonseMatch: isMatchExpectation });
+  serialPort.on("data", function async(data) {
+    return new Promise((resolve, reject) => {
+      console.log(data.toString());
+      console.log("Data received: " + data);
+      if (saveMagzineCount) {
+        const hopperCount = setHopperCount(data.toString());
+        console.log("Hopper Count");
+        const cache = setToCache("hopperCount", formatHopperCount(hopperCount));
+        console.log(cache);
+        return hopperCount;
+      }
+      const isMatchExpectation = matchExpectations(data.toString(), expectedResponse);
+      resolve({ data: data.toString(), repsonseMatch: isMatchExpectation });
       reject({ error: err });
     });
   });
