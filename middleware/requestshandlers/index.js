@@ -69,26 +69,26 @@ const processDataFromClient = async (data, numberOfJobs = 1) => {
   }
 };
 
-const testScapsCommands = async (cmd) => {
-  const client = new net.Socket();
-  const promiseSocket = new PromiseSocket(client);
-  client.connect(
-    {
-      port: formatOptions.scapsConfig.port,
-      host: formatOptions.scapsConfig.ipAddress
-    },
-    function () {
-      // If there is no error, the server has accepted the request and created a new
-      // socket dedicated to us.
-      console.log("TCP connection established with the SCAPS SamLight.");
+const client = new net.Socket();
+client.connect(
+  {
+    port: formatOptions.scapsConfig.port,
+    host: formatOptions.scapsConfig.ipAddress
+  },
+  function () {
+    // If there is no error, the server has accepted the request and created a new
+    // socket dedicated to us.
+    console.log("TCP connection established with the SCAPS SamLight.");
 
-      // The client can now send data to the server by writing to its socket.
-      console.log(
-        `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} to SAMlight> : ${cmd.toString()}`
-      );
-      client.write(cmd);
-    }
+    // The client can now send data to the server by writing to its socket.
+  }
+);
+
+const testScapsCommands = async (cmd) => {
+  console.log(
+    `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} to SAMlight> : ${cmd.toString()}`
   );
+  client.write(cmd);
 
   client.on("data", (data) => {
     console.log(
@@ -104,7 +104,6 @@ const testScapsCommands = async (cmd) => {
 };
 
 const updateScapsTemplate = (cmdInstructions) => {
-  const client = new net.Socket();
   client.connect(
     {
       port: formatOptions.scapsConfig.port,
