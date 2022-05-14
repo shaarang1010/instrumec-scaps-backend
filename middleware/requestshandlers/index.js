@@ -1,4 +1,3 @@
-const net = require("net");
 const fileOperations = require("../filehandlers/fileOperations");
 const formatOptions = require("../../setup/formatter.json");
 const { PromiseSocket, TimeoutError } = require("promise-socket");
@@ -69,79 +68,47 @@ const processDataFromClient = async (data, numberOfJobs = 1) => {
   }
 };
 
-const client = new net.Socket();
-client.connect(
-  {
-    port: formatOptions.scapsConfig.port,
-    host: formatOptions.scapsConfig.ipAddress
-  },
-  function () {
-    // If there is no error, the server has accepted the request and created a new
-    // socket dedicated to us.
-    console.log("TCP connection established with the SCAPS SamLight.");
-
-    // The client can now send data to the server by writing to its socket.
-  }
-);
-
-const testScapsCommands = async (cmd) => {
+const testScapsCommands = async (client, cmd) => {
   console.log(
     `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} to SAMlight> : ${cmd.toString()}`
   );
   client.write(cmd);
 
   client.on("data", (data) => {
+    console.log("inside data");
     console.log(
       `<SAMLight Response @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> => ${data}`
     );
-    new Promise((resolve, reject) => {
+    client.destroy();
+    return new Promise((resolve, reject) => {
       resolve(data);
 
       reject({ error: "Connection Issue", cci_error_code: data });
     });
-    client.destroy();
   });
 };
 
-const updateScapsTemplate = (cmdInstructions) => {
-  client.connect(
-    {
-      port: formatOptions.scapsConfig.port,
-      host: formatOptions.scapsConfig.ipAddress
-    },
-    function () {
-      // If there is no error, the server has accepted the request and created a new
-      // socket dedicated to us.
-      console.log("TCP connection established with the SCAPS SamLight.");
-
-      // The client can now send data to the server by writing to its socket.
-      console.log(
-        `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} to SAMLight> : ${cmdInstructions[0].toString()}`
-      );
-      client.write(cmdInstructions[0]);
-      cmdInstructions.splice(0, 1);
-    }
-  );
-
+const updateScapsTemplate = (client, cmdInstruction) => {
   client.on("data", (data) => {
     console.log(
       `<SAMLight Response @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> => ${data}`
     );
-    while (cmdInstructions.length !== 0) {
-      console.log(
-        `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstructions[0].toString()}`
-      );
-      client.write(cmdInstructions[0]);
-      cmdInstructions.splice(0, 1);
-      break;
-    }
-    new Promise((resolve, reject) => {
+    // while (cmdInstructions.length !== 0) {
+    //   console.log(
+    //     `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstructions[0].toString()}`
+    //   );
+    //   client.write(cmdInstructions[0]);
+    //   cmdInstructions.splice(0, 1);
+    //   break;
+    // }
+    console.log(
+      `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstructions[0].toString()}`
+    );
+    client.write(cmdInstructions);
+    console.log("Client Data", data);
+    return new Promise((resolve, reject) => {
       resolve(data);
-
       reject({ error: "Connection Issue", cci_error_code: data });
-    });
-    client.on("end", () => {
-      console.log("Ending connection");
     });
   });
 };

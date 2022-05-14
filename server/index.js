@@ -19,12 +19,28 @@ const {
 //import serial handlers
 const { writeToSerial, readSerialData } = require("../serial");
 const { serialCommands } = require("../setup/serialcommands.json");
+const formatOptions = require("../setup/formatter.json");
 
 //import hopper file
 
 let hopperCount = 0;
 
 const maptoHopper = require("../middleware/helpers/hopperMapper").maptoHopper;
+const client = new Net.Socket();
+client.connect(
+  {
+    port: formatOptions.scapsConfig.port,
+    host: formatOptions.scapsConfig.ipAddress
+  },
+  function () {
+    // If there is no error, the server has accepted the request and created a new
+    // socket dedicated to us.
+    console.log("TCP connection established with the SCAPS SamLight.");
+  }
+);
+client.on("end", () => {
+  console.log("Ending connection");
+});
 
 // Use net.createServer() in your code. This is just for illustration purpose.
 // Create a new TCP server.
@@ -35,19 +51,18 @@ let server = Net.createServer(function (connection) {
     switch (info.toString()) {
       case "TEST":
         let scapCommand = testConnection("Communication with Instrumec Scrittore is up..").toString();
-        console.log(scapCommand);
-        let returnValue1 = await testScapsCommands(scapCommand);
+        let returnValue1 = await testScapsCommands(client, scapCommand);
         console.log(returnValue1);
         break;
       case "MIDDLEWARE":
         console.log("working....");
         break;
       case "ISMARKING":
-        let returnValue2 = await testScapsCommands(isMarking());
+        let returnValue2 = await testScapsCommands(client, isMarking());
         console.log(returnValue2);
         break;
       case "PRINTJOB":
-        let returnValue = await testScapsCommands(markEntityByName("", true));
+        let returnValue = await testScapsCommands(client, markEntityByName("", true));
         console.log(returnValue);
         break;
       case "REBOOT":
@@ -126,10 +141,10 @@ let server = Net.createServer(function (connection) {
             markEntityByName("", true)
           ];
 
-          console.log(setOfInstructions);
-
-          let dataReturn = await updateScapsTemplate(setOfInstructions);
-          console.log(dataReturn);
+          setOfInstructions.map(async (instruction) => {
+            let dataReturn = await updateScapsTemplate(client, instruction);
+            console.log(dataReturn);
+          });
         });
         break;
     }
