@@ -38,7 +38,7 @@ client.connect(
     console.log("TCP connection established with the SCAPS SamLight.");
   }
 );
-client.on("end", () => {
+client.once("end", () => {
   console.log("Ending connection");
 });
 
@@ -47,12 +47,12 @@ client.on("end", () => {
 let server = Net.createServer(function (connection) {
   console.log("client connected");
 
-  connection.on("data", async function (info) {
+  connection.once("data", async function (info) {
     switch (info.toString()) {
       case "TEST":
         let scapCommand = testConnection("Communication with Instrumec Scrittore is up..").toString();
         let returnValue1 = await testScapsCommands(client, scapCommand);
-        console.log(returnValue1);
+        console.log("returnvalue", returnValue1);
         break;
       case "MIDDLEWARE":
         console.log("working....");
@@ -128,12 +128,13 @@ let server = Net.createServer(function (connection) {
         // const data = await readSerialData(serialCommands.magazineCheck.expect, true);
         receivedData.map(async (obj) => {
           let patientData = await requestHandler.processData(obj);
+          console.log("patientdata", patientData);
           const hopper = maptoHopper(parseInt(patientData.hopper));
           console.log("hopper possition =======", hopper);
           const setHopperPos = await writeToSerial(serialDataFormatters(serialCommands.setCurrentPos.send, hopper - 1));
-          console.log(setHopperPos);
+          console.log("setHopper", setHopperPos);
           const response = await readSerialData(serialCommands.setCurrentPos.expect);
-          console.log(response);
+          console.log("serialResponse", response);
           let setOfInstructions = [
             loadEntityDataToTemplate("hopperNumber", patientData.hopper),
             loadEntityDataToTemplate("patientName", patientData.patientName),
@@ -142,6 +143,7 @@ let server = Net.createServer(function (connection) {
           ];
 
           setOfInstructions.map(async (instruction) => {
+            console.log(instruction);
             let dataReturn = await updateScapsTemplate(client, instruction);
             console.log(dataReturn);
           });

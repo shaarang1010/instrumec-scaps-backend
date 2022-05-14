@@ -69,46 +69,44 @@ const processDataFromClient = async (data, numberOfJobs = 1) => {
 };
 
 const testScapsCommands = async (client, cmd) => {
-  console.log(
-    `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} to SAMlight> : ${cmd.toString()}`
-  );
-  client.write(cmd);
-
-  client.on("data", (data) => {
-    console.log("inside data");
+  return new Promise((resolve, reject) => {
     console.log(
-      `<SAMLight Response @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> => ${data}`
+      `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} to SAMlight> : ${cmd.toString()}`
     );
-    client.destroy();
-    return new Promise((resolve, reject) => {
-      resolve(data);
+    client.write(cmd);
 
-      reject({ error: "Connection Issue", cci_error_code: data });
+    client.once("data", (data) => {
+      console.log("inside data");
+      console.log(
+        `<SAMLight Response @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> => ${data}`
+      );
+      resolve(`Data = ${data}`);
+
+      reject({ error: "Connection Issue", cci_error_code: "err" });
     });
   });
 };
 
 const updateScapsTemplate = (client, cmdInstruction) => {
-  client.on("data", (data) => {
-    console.log(
-      `<SAMLight Response @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> => ${data}`
-    );
-    // while (cmdInstructions.length !== 0) {
-    //   console.log(
-    //     `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstructions[0].toString()}`
-    //   );
-    //   client.write(cmdInstructions[0]);
-    //   cmdInstructions.splice(0, 1);
-    //   break;
-    // }
-    console.log(
-      `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstructions[0].toString()}`
-    );
-    client.write(cmdInstructions);
-    console.log("Client Data", data);
-    return new Promise((resolve, reject) => {
-      resolve(data);
-      reject({ error: "Connection Issue", cci_error_code: data });
+  return new Promise((resolve, reject) => {
+    client.write(cmdInstruction);
+    client.once("data", (data) => {
+      console.log(
+        `<SAMLight Response @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> => ${data}`
+      );
+      // while (cmdInstructions.length !== 0) {
+      //   console.log(
+      //     `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstructions[0].toString()}`
+      //   );
+      //   client.write(cmdInstructions[0]);
+      //   cmdInstructions.splice(0, 1);
+      //   break;
+      // }
+      console.log(
+        `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstruction.toString()}`
+      );
+      resolve(data.toString());
+      reject({ error: "Connection Issue", cci_error_code: "error" });
     });
   });
 };

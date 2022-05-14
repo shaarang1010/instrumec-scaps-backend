@@ -15,10 +15,11 @@ const readSerialData = () => {
   port.pipe(parser);
 
   serialPort.on("open", function () {
-    console.log("-- Connection opened --");
-    parser.on("data", function (data) {
-      console.log("Data received: " + data);
-      new Promise((resolve, reject) => {
+    new Promise((resolve, reject) => {
+      console.log("-- Connection opened --");
+      parser.on("data", function (data) {
+        console.log("Data received: " + data);
+
         resolve(data);
         reject({ error: err });
       });
