@@ -3,6 +3,7 @@ const Net = require("net");
 const os = require("os");
 const { serialDataFormatters } = require("../middleware/helpers/serialDataFormatters");
 const { testScapsCommands, updateScapsTemplate } = require("../middleware/requestshandlers");
+const notifier = require("../middleware/helpers/notifier");
 // The port on which the server is listening.
 const port = 5050;
 //Get ip address
@@ -123,6 +124,7 @@ let server = Net.createServer(function (connection) {
         return await readSerialData(serialCommands.help.expect);
       default:
         const receivedData = info.toString().split("\n");
+        notifier.notificationMessage(`Printing job of ${receivedData.length} cassettes`, "Instrumec Scrittore");
         // const magzineMessage = serialDataFormatters(serialCommands.magazineCheck.send);
         // const numberOfCassettes = await writeToSerial(magzineMessage);
         // const data = await readSerialData(serialCommands.magazineCheck.expect, true);
