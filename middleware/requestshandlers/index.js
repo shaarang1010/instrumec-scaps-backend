@@ -14,30 +14,31 @@ const { PromiseSocket, TimeoutError } = require("promise-socket");
  */
 
 const formatData = (data, clientName) => {
-  const clientFormattingOptions = formatOptions.clients.filter((option) => option.name === clientName)[0].formatOptions;
-
-  let hopper = data.indexOf(clientFormattingOptions["hopper"]);
-  let hospitalId = data.indexOf(clientFormattingOptions["hospitalNumber"]);
-  let patientNumber = data.indexOf(clientFormattingOptions["patientNumber"]);
-  let patientName = data.indexOf(clientFormattingOptions["patientName"]);
-  let specimen = data.lastIndexOf(clientFormattingOptions["specimen"]);
-  let specimenNumber = data.lastIndexOf(clientFormattingOptions["specimenNumber"]);
-
-  const printJob = [
-    data.substring(hopper + 3, hospitalId),
-    data.substring(hospitalId + 2, patientNumber),
-    data.substring(patientNumber + 1, patientName),
-    data.substring(patientName + 4, specimen).trim().length > 11
-      ? `${data
-          .substring(patientName + 4, specimen)
-          .trim()
-          .subtr(0, 9)}*`
-      : data.substring(patientName + 4, specimen).trim(),
-    data.substring(specimenNumber - 1, specimenNumber),
-    data.substring(specimenNumber + 1, data.length)
-  ];
-
   return new Promise((resolve, reject) => {
+    const clientFormattingOptions = formatOptions.clients.filter((option) => option.name === clientName)[0]
+      .formatOptions;
+
+    let hopper = data.indexOf(clientFormattingOptions["hopper"]);
+    let hospitalId = data.indexOf(clientFormattingOptions["hospitalNumber"]);
+    let patientNumber = data.indexOf(clientFormattingOptions["patientNumber"]);
+    let patientName = data.indexOf(clientFormattingOptions["patientName"]);
+    let specimen = data.lastIndexOf(clientFormattingOptions["specimen"]);
+    let specimenNumber = data.lastIndexOf(clientFormattingOptions["specimenNumber"]);
+
+    const printJob = [
+      data.substring(hopper + 3, hospitalId),
+      data.substring(hospitalId + 2, patientNumber),
+      data.substring(patientNumber + 1, patientName),
+      data.substring(patientName + 4, specimen).trim().length > 11
+        ? `${data
+            .substring(patientName + 4, specimen)
+            .trim()
+            .subtr(0, 9)}*`
+        : data.substring(patientName + 4, specimen).trim(),
+      data.substring(specimenNumber - 1, specimenNumber),
+      data.substring(specimenNumber + 1, data.length)
+    ];
+
     resolve({
       hopper: printJob[0],
       patientNumber: printJob[2],
@@ -52,20 +53,23 @@ const formatData = (data, clientName) => {
 
 const processDataFromClient = async (data, numberOfJobs = 1) => {
   //TODO: add param to print jobs in batch
-  let specimenNumberIndex = data.lastIndexOf(".");
-  let specimenNumber = Number(data.substring(specimenNumberIndex + 1, data.length));
-  for (let job = 0; job < numberOfJobs; job++) {
-    specimenNumber = specimenNumber + job;
-    let printData = data.substring(0, specimenNumberIndex + 1) + specimenNumber;
+  return new Promise(async (resolve, reject) => {
+    let specimenNumberIndex = data.lastIndexOf(".");
+    let specimenNumber = Number(data.substring(specimenNumberIndex + 1, data.length));
+    for (let job = 0; job < numberOfJobs; job++) {
+      specimenNumber = specimenNumber + job;
+      let printData = data.substring(0, specimenNumberIndex + 1) + specimenNumber;
 
-    const printJob = await formatData(printData, "boxhill");
-    /*const fileLocation = formatOptions.filePath;
-    let fileName = fileOperations.writeToFile(fileLocation, printJob, {
-      fileType: "xlsx",
-    });
-    console.log(fileName);*/
-    return printJob;
-  }
+      const printJob = await formatData(printData, "boxhill");
+      /*const fileLocation = formatOptions.filePath;
+      let fileName = fileOperations.writeToFile(fileLocation, printJob, {
+        fileType: "xlsx",
+      });
+      console.log(fileName);*/
+      resolve(printJob);
+      reject({ error: "Something went wrong!" });
+    }
+  });
 };
 
 const testScapsCommands = async (client, cmd) => {
@@ -87,7 +91,7 @@ const testScapsCommands = async (client, cmd) => {
   });
 };
 
-const updateScapsTemplate = (client, cmdInstruction) => {
+const updateScapsTemplate = async (client, cmdInstruction) => {
   return new Promise((resolve, reject) => {
     client.write(cmdInstruction);
     client.once("data", (data) => {

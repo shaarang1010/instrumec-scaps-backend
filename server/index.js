@@ -26,6 +26,35 @@ const formatOptions = require("../setup/formatter.json");
 
 let hopperCount = 0;
 
+const printJob = (item) => {
+  return new Promise(async (resolve, reject) => {
+    const patientData = await requestHandler.processData(item);
+    console.log("=====Printing patient data====");
+    console.log("patientdata", patientData);
+    const hopper = maptoHopper(parseInt(patientData.hopper));
+    console.log("hopper possition =======", hopper);
+    const setHopperPos = await writeToSerial(serialDataFormatters(serialCommands.setCurrentPos.send, hopper - 1));
+    console.log("setHopper", setHopperPos);
+
+    console.log("=========== Reading from Serial ==============");
+    const response = await readSerialData(serialCommands.setCurrentPos.expect);
+    console.log("serialResponse", response);
+    let setOfInstructions = [
+      loadEntityDataToTemplate("hopperNumber", patientData.hopper),
+      loadEntityDataToTemplate("patientName", patientData.patientName),
+      loadEntityDataToTemplate("specimen", patientData.specimen)
+    ];
+    //markEntityByName("", true)
+
+    setOfInstructions.map(async (instruction) => {
+      console.log(instruction);
+      let dataReturn = await Promise.all[updateScapsTemplate(client, instruction)];
+      console.log(dataReturn);
+    });
+    resolve(1);
+  });
+};
+
 const maptoHopper = require("../middleware/helpers/hopperMapper").maptoHopper;
 const client = new Net.Socket();
 client.connect(
@@ -87,8 +116,8 @@ let server = Net.createServer(function (connection) {
       case "MAGZINE_CHECK":
         let magzineCheckMessage = serialDataFormatters(serialCommands.magazineCheck.send);
         const magzineCheck = await writeToSerial(magzineCheckMessage);
-        console.log(magzineCheck);
-        console.log(await readSerialData(serialCommands.magazineCheck.expect, true));
+        console.log("magzine Check", magzineCheck);
+        console.log("Serial data waiting ===", await readSerialData(serialCommands.magazineCheck.expect, true));
         break;
       case "GET_POS":
         let getPositionMessage = serialDataFormatters(serialCommands.getCurrentPos.send);
@@ -96,7 +125,7 @@ let server = Net.createServer(function (connection) {
         console.log(currentPosition);
         return await readSerialData(serialCommands.getCurrentPos.expect);
       case "SET_POS":
-        let currentPosMessage = serialDataFormatters(serialCommands.setCurrentPos.send);
+        let currentPosMessage = serialDataFormatters(serialCommands.setCurrentPos.send, 1);
         const setCurrentPos = await writeToSerial(currentPosMessage);
         console.log(setCurrentPos);
         return await readSerialData(serialCommands.setCurrentPos.expect);
@@ -124,38 +153,36 @@ let server = Net.createServer(function (connection) {
         return await readSerialData(serialCommands.help.expect);
       default:
         const receivedData = info.toString().split("\n");
-        notifier.notificationMessage(`Printing job of ${receivedData.length} cassettes`, "Instrumec Scrittore");
+        notifier.notificationMessage(`Printing job of ${receivedData.length} cassettes`, "Success");
         // const magzineMessage = serialDataFormatters(serialCommands.magazineCheck.send);
         // const numberOfCassettes = await writeToSerial(magzineMessage);
         // const data = await readSerialData(serialCommands.magazineCheck.expect, true);
-        receivedData.map(async (obj) => {
-          let patientData = await requestHandler.processData(obj);
-          console.log("patientdata", patientData);
-          const hopper = maptoHopper(parseInt(patientData.hopper));
-          console.log("hopper possition =======", hopper);
-          const setHopperPos = await writeToSerial(serialDataFormatters(serialCommands.setCurrentPos.send, hopper - 1));
-          console.log("setHopper", setHopperPos);
-          const response = await readSerialData(serialCommands.setCurrentPos.expect);
-          console.log("serialResponse", response);
-          let setOfInstructions = [
-            loadEntityDataToTemplate("hopperNumber", patientData.hopper),
-            loadEntityDataToTemplate("patientName", patientData.patientName),
-            loadEntityDataToTemplate("specimen", patientData.specimen),
-            markEntityByName("", true)
-          ];
+        const processData = async () => {
+          for (const item of receivedData) {
+            await printJob(item);
+            // let setOfInstructions = [
+            //   loadEntityDataToTemplate("hopperNumber", patientData.hopper),
+            //   loadEntityDataToTemplate("patientName", patientData.patientName),
+            //   loadEntityDataToTemplate("specimen", patientData.specimen)
+            // ];
+            // //markEntityByName("", true)
 
-          setOfInstructions.map(async (instruction) => {
-            console.log(instruction);
-            let dataReturn = await updateScapsTemplate(client, instruction);
-            console.log(dataReturn);
-          });
-        });
-        break;
+            // setOfInstructions.map(async (instruction) => {
+            //   console.log(instruction);
+            //   let dataReturn = await updateScapsTemplate(client, instruction);
+            // });
+          }
+        };
+        processData();
     }
   });
 
   connection.on("end", function () {
     console.log("client disconnected");
+  });
+
+  connection.on("error", () => {
+    notifier.notificationMessage("Error connecting to Samlight. Please check if the application is running", "Error");
   });
 
   connection.pipe(connection);

@@ -1,13 +1,13 @@
 {
   "hoppers": {
-    "H1": "white",
-    "H2": "blue",
+    "H1": "grey",
+    "H2": "white",
     "H3": "yellow",
-    "H4": "blue",
-    "H5": "yellow",
+    "H4": "white",
+    "H5": "green",
     "H6": "green",
-    "H7": "green",
-    "H8": "blue",
+    "H7": "blue",
+    "H8": "grey",
     "H9": "yellow",
     "H10": "pink"
   }
