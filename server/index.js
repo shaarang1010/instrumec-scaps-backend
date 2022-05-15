@@ -21,10 +21,24 @@ const {
 const { writeToSerial, readSerialData } = require("../serial");
 const { serialCommands } = require("../setup/serialcommands.json");
 const formatOptions = require("../setup/formatter.json");
+const { getFromCache } = require("../middleware/helpers/cacheCommands");
+const maptoHopper = require("../middleware/helpers/hopperMapper").maptoHopper;
 
 //import hopper file
 
 let hopperCount = 0;
+
+const doMagzineCheck = () => {
+  return new Promise(async (resolve, reject) => {
+    let magzineCheckMessage = serialDataFormatters(serialCommands.magazineCheck.send);
+    const magzineCheck = await writeToSerial(magzineCheckMessage);
+    console.log("magzine Check", magzineCheck);
+    if (getFromCache("hopperCount").length !== 10) {
+      const magzineCheck = await writeToSerial(magzineCheckMessage);
+    }
+    resolve(1);
+  });
+};
 
 const printJob = (item) => {
   return new Promise(async (resolve, reject) => {
@@ -44,7 +58,7 @@ const printJob = (item) => {
       loadEntityDataToTemplate("patientName", patientData.patientName),
       loadEntityDataToTemplate("specimen", patientData.specimen)
     ];
-    //markEntityByName("", true)
+    // markEntityByName("", true)
 
     setOfInstructions.map(async (instruction) => {
       console.log(instruction);
@@ -55,7 +69,6 @@ const printJob = (item) => {
   });
 };
 
-const maptoHopper = require("../middleware/helpers/hopperMapper").maptoHopper;
 const client = new Net.Socket();
 client.connect(
   {
@@ -154,23 +167,10 @@ let server = Net.createServer(function (connection) {
       default:
         const receivedData = info.toString().split("\n");
         notifier.notificationMessage(`Printing job of ${receivedData.length} cassettes`, "Success");
-        // const magzineMessage = serialDataFormatters(serialCommands.magazineCheck.send);
-        // const numberOfCassettes = await writeToSerial(magzineMessage);
-        // const data = await readSerialData(serialCommands.magazineCheck.expect, true);
+        const checkHopperLevels = await doMagzineCheck();
         const processData = async () => {
           for (const item of receivedData) {
             await printJob(item);
-            // let setOfInstructions = [
-            //   loadEntityDataToTemplate("hopperNumber", patientData.hopper),
-            //   loadEntityDataToTemplate("patientName", patientData.patientName),
-            //   loadEntityDataToTemplate("specimen", patientData.specimen)
-            // ];
-            // //markEntityByName("", true)
-
-            // setOfInstructions.map(async (instruction) => {
-            //   console.log(instruction);
-            //   let dataReturn = await updateScapsTemplate(client, instruction);
-            // });
           }
         };
         processData();
