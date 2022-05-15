@@ -40,5 +40,5 @@ module.exports = {
   markEntityByName: markEntityByName,
   loadEntityDataToTemplate: loadEntityDataToTemplate,
   resetSerialNumber: resetSerialNumber,
-  testConnection: testConnection,
+  testConnection: testConnection
 };

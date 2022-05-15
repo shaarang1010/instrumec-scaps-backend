@@ -47,22 +47,20 @@ const printJob = (item) => {
     console.log("patientdata", patientData);
     const hopper = maptoHopper(parseInt(patientData.hopper));
     console.log("hopper possition =======", hopper);
-    const setHopperPos = await writeToSerial(serialDataFormatters(serialCommands.setCurrentPos.send, hopper - 1));
-    console.log("setHopper", setHopperPos);
-
-    console.log("=========== Reading from Serial ==============");
-    const response = await readSerialData(serialCommands.setCurrentPos.expect);
-    console.log("serialResponse", response);
+    const setHopperPos = await Promise.all([
+      writeToSerial(serialDataFormatters(serialCommands.setCurrentPos.send, hopper - 1)),
+      readSerialData(serialCommands.setCurrentPos.expect)
+    ]);
+    console.log("serialResponse", setHopperPos);
     let setOfInstructions = [
       loadEntityDataToTemplate("hopperNumber", patientData.hopper),
       loadEntityDataToTemplate("patientName", patientData.patientName),
-      loadEntityDataToTemplate("specimen", patientData.specimen)
+      loadEntityDataToTemplate("specimen", patientData.specimen),
+      markEntityByName("", true)
     ];
-    // markEntityByName("", true)
-
     setOfInstructions.map(async (instruction) => {
       console.log(instruction);
-      let dataReturn = await Promise.all[updateScapsTemplate(client, instruction)];
+      let dataReturn = await Promise.all([updateScapsTemplate(client, instruction)]);
       console.log(dataReturn);
     });
     resolve(1);
@@ -138,7 +136,7 @@ let server = Net.createServer(function (connection) {
         console.log(currentPosition);
         return await readSerialData(serialCommands.getCurrentPos.expect);
       case "SET_POS":
-        let currentPosMessage = serialDataFormatters(serialCommands.setCurrentPos.send, 1);
+        let currentPosMessage = serialDataFormatters(serialCommands.setCurrentPos.send, 4);
         const setCurrentPos = await writeToSerial(currentPosMessage);
         console.log(setCurrentPos);
         return await readSerialData(serialCommands.setCurrentPos.expect);
@@ -155,13 +153,11 @@ let server = Net.createServer(function (connection) {
       case "TEST_PRINT":
         let testMessage = serialDataFormatters(serialCommands.test.send);
         const testSerial = await writeToSerial(testMessage);
-        //const readMessage = await readSerialData();
         console.log(testSerial);
         return await readSerialData(serialCommands.test.expect);
       case "HELP":
         let helpMessage = serialDataFormatters(serialCommands.help.send);
         const helpSerial = await writeToSerial(helpMessage);
-        //const readMessage = await readSerialData();
         console.log(helpSerial);
         return await readSerialData(serialCommands.help.expect);
       default:
@@ -170,18 +166,20 @@ let server = Net.createServer(function (connection) {
         const checkHopperLevels = await doMagzineCheck();
         const processData = async () => {
           for (const item of receivedData) {
-            await printJob(item);
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+            const res = await printJob(item);
+            console.log(res);
           }
         };
         processData();
     }
   });
 
-  connection.on("end", function () {
+  connection.once("end", function () {
     console.log("client disconnected");
   });
 
-  connection.on("error", () => {
+  connection.once("error", () => {
     notifier.notificationMessage("Error connecting to Samlight. Please check if the application is running", "Error");
   });
 
