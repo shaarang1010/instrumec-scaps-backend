@@ -19,8 +19,8 @@ const {
 
 //import serial handlers
 const { writeToSerial, readSerialData } = require("../serial");
-const { serialCommands } = require("../setup/serialcommands.json");
-const formatOptions = require("../setup/formatter.json");
+const { serialCommands } = require("../../config/serialcommands.json");
+const formatOptions = require("../../config/formatter.json");
 const { getFromCache } = require("../middleware/helpers/cacheCommands");
 const maptoHopper = require("../middleware/helpers/hopperMapper").maptoHopper;
 
@@ -43,27 +43,27 @@ const doMagzineCheck = () => {
 const printJob = (item) => {
   return new Promise(async (resolve, reject) => {
     const patientData = await requestHandler.processData(item);
-    console.log("=====Printing patient data====");
-    console.log("patientdata", patientData);
     const hopper = maptoHopper(parseInt(patientData.hopper));
-    console.log("hopper possition =======", hopper);
-    const setHopperPos = await Promise.all([
-      writeToSerial(serialDataFormatters(serialCommands.setCurrentPos.send, hopper - 1)),
-      readSerialData(serialCommands.setCurrentPos.expect)
-    ]);
-    console.log("serialResponse", setHopperPos);
-    let setOfInstructions = [
-      loadEntityDataToTemplate("hopperNumber", patientData.hopper),
-      loadEntityDataToTemplate("patientName", patientData.patientName),
-      loadEntityDataToTemplate("specimen", patientData.specimen),
-      markEntityByName("", true)
-    ];
-    setOfInstructions.map(async (instruction) => {
-      console.log(instruction);
-      let dataReturn = await Promise.all([updateScapsTemplate(client, instruction)]);
-      console.log(dataReturn);
-    });
-    resolve(1);
+    if (hopper !== false) {
+      const setHopperPos = await Promise.all([
+        writeToSerial(serialDataFormatters(serialCommands.setCurrentPos.send, hopper - 1)),
+        readSerialData(serialCommands.setCurrentPos.expect)
+      ]);
+      let setOfInstructions = [
+        loadEntityDataToTemplate("hopperNumber", patientData.hopper),
+        loadEntityDataToTemplate("patientName", patientData.patientName),
+        loadEntityDataToTemplate("specimen", patientData.specimen),
+        markEntityByName("", true)
+      ];
+      setOfInstructions.map(async (instruction) => {
+        console.log(instruction);
+        let dataReturn = await Promise.all([updateScapsTemplate(client, instruction)]);
+        console.log(dataReturn);
+      });
+      resolve(true);
+    } else {
+      resolve(false);
+    }
   });
 };
 
@@ -166,9 +166,12 @@ let server = Net.createServer(function (connection) {
         const checkHopperLevels = await doMagzineCheck();
         const processData = async () => {
           for (const item of receivedData) {
-            await new Promise((resolve) => setTimeout(resolve, 10000));
             const res = await printJob(item);
-            console.log(res);
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+            if (!res) {
+              notifier.notificationMessage("Cassettes are empty. Please add cassettes and try again!", "Error");
+              break;
+            }
           }
         };
         processData();
