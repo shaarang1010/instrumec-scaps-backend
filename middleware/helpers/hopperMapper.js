@@ -1,4 +1,4 @@
-const { hoppers } = require("../../setup/hoppers.json");
+const { hoppers } = require("../../../config/hoppers.json");
 const lodash = require("lodash");
 const { getFromCache, setToCache } = require("./cacheCommands");
 
@@ -6,22 +6,27 @@ const maptoHopper = (hopperNumber) => {
   const hopperCount = getFromCache("hopperCount");
   let hopper = "";
   let index = 0;
+  let isAlternativeHopperEmpty = false;
   if (hopperCount[hopperNumber - 1] > 5) {
     index = hopperNumber - 1;
     hopper = hopperNumber;
   } else if (hopperCount[hopperNumber - 1] === 0 || hopperCount[hopperNumber - 1] <= 5) {
-    console.log("Empty Hopper ------ ");
     let alternativeHoppers = { ...hoppers };
     const selectedColor = lodash.get(alternativeHoppers, `H${hopperNumber}`);
-    console.log("Selected Color ==== ", selectedColor);
     delete alternativeHoppers[`H${hopperNumber}`];
     const alternateColor = Object.keys(alternativeHoppers).find((key) => alternativeHoppers[key] === selectedColor);
-    console.log("alternateColor ===== ", alternateColor);
     index = Object.keys(alternativeHoppers).indexOf(alternateColor) + 1;
     hopper = alternateColor.replace("H", "");
+    if (hopperCount[index] <= 5) {
+      isAlternativeHopperEmpty = true;
+    }
   }
-  updateHopperCount(hopperCount, index);
-  return hopper;
+  if (!isAlternativeHopperEmpty) {
+    updateHopperCount(hopperCount, index);
+    return hopper;
+  } else {
+    return false;
+  }
 };
 
 const setHopperCount = (count) => {
@@ -31,7 +36,6 @@ const setHopperCount = (count) => {
 const updateHopperCount = (hopperCount, index) => {
   const currentCount = [...hopperCount];
   currentCount[index] = currentCount[index] - 1;
-  console.log("Setting Hoppers to =====", currentCount);
   setToCache("hopperCount", currentCount);
 };
 

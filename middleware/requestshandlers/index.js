@@ -1,5 +1,5 @@
 const fileOperations = require("../filehandlers/fileOperations");
-const formatOptions = require("../../setup/formatter.json");
+const formatOptions = require("../../../config/formatter.json");
 const { PromiseSocket, TimeoutError } = require("promise-socket");
 
 /**
@@ -93,14 +93,6 @@ const updateScapsTemplate = async (client, cmdInstruction) => {
       console.log(
         `<SAMLight Response @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> => ${data}`
       );
-      // while (cmdInstructions.length !== 0) {
-      //   console.log(
-      //     `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstructions[0].toString()}`
-      //   );
-      //   client.write(cmdInstructions[0]);
-      //   cmdInstructions.splice(0, 1);
-      //   break;
-      // }
       console.log(
         `<Sent @ ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}> : ${cmdInstruction.toString()}`
       );

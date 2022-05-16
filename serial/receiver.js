@@ -1,5 +1,5 @@
 var SerialPort = require("serialport").SerialPort;
-const serialConfig = require("../setup/serialcommands.json");
+const serialConfig = require("../../config/serialcommands.json");
 const { ReadlineParser } = require("@serialport/parser-readline");
 
 const { port, baudRate, dataBits, stopBits } = serialConfig.serialConfig;

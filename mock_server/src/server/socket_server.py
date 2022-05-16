@@ -1,6 +1,7 @@
 # echo-server.py
 
 import socket
+from time import sleep, time
 
 HOST = "127.0.0.1"
 PORT = 4000
@@ -17,6 +18,7 @@ try:
         while data:
             print(data.decode("utf-8"))
             data = conn.recv(1024)
+            sleep(8)  # mock hopper print
             conn.sendall(data)
 except KeyboardInterrupt:
     sock.close
