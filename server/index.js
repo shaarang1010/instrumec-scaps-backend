@@ -53,6 +53,7 @@ const printJob = (item) => {
         loadEntityDataToTemplate("hopperNumber", patientData.hopper),
         loadEntityDataToTemplate("patientName", patientData.patientName),
         loadEntityDataToTemplate("specimen", patientData.specimen),
+        loadEntityDataToTemplate("barcode", patientData.patientNumber),
         markEntityByName("", true)
       ];
       setOfInstructions.map(async (instruction) => {
