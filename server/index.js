@@ -68,21 +68,21 @@ const printJob = (item) => {
   });
 };
 
-const client = new Net.Socket();
-client.connect(
-  {
-    port: formatOptions.scapsConfig.port,
-    host: formatOptions.scapsConfig.ipAddress
-  },
-  function () {
-    // If there is no error, the server has accepted the request and created a new
-    // socket dedicated to us.
-    console.log("TCP connection established with the SCAPS SamLight.");
-  }
-);
-client.once("end", () => {
-  console.log("Ending connection");
-});
+// const client = new Net.Socket();
+// client.connect(
+//   {
+//     port: formatOptions.scapsConfig.port,
+//     host: formatOptions.scapsConfig.ipAddress
+//   },
+//   function () {
+//     // If there is no error, the server has accepted the request and created a new
+//     // socket dedicated to us.
+//     console.log("TCP connection established with the SCAPS SamLight.");
+//   }
+// );
+// client.once("end", () => {
+//   console.log("Ending connection");
+// });
 
 // Use net.createServer() in your code. This is just for illustration purpose.
 // Create a new TCP server.
