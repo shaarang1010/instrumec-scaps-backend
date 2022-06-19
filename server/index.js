@@ -7,7 +7,7 @@ const notifier = require("../middleware/helpers/notifier");
 // The port on which the server is listening.
 const port = 5050;
 //Get ip address
-const ipAddress = os.networkInterfaces()["Wi-Fi"][1].address;
+const ipAddress = "0.0.0.0";
 // import request handler
 const requestHandler = require("../middleware/requestshandlers");
 const {
@@ -68,21 +68,21 @@ const printJob = (item) => {
   });
 };
 
-// const client = new Net.Socket();
-// client.connect(
-//   {
-//     port: formatOptions.scapsConfig.port,
-//     host: formatOptions.scapsConfig.ipAddress
-//   },
-//   function () {
-//     // If there is no error, the server has accepted the request and created a new
-//     // socket dedicated to us.
-//     console.log("TCP connection established with the SCAPS SamLight.");
-//   }
-// );
-// client.once("end", () => {
-//   console.log("Ending connection");
-// });
+const client = new Net.Socket();
+client.connect(
+  {
+    port: formatOptions.scapsConfig.port,
+    host: formatOptions.scapsConfig.ipAddress
+  },
+  function () {
+    // If there is no error, the server has accepted the request and created a new
+    // socket dedicated to us.
+    console.log("TCP connection established with the SCAPS SamLight.");
+  }
+);
+client.once("end", () => {
+  console.log("Ending connection");
+});
 
 // Use net.createServer() in your code. This is just for illustration purpose.
 // Create a new TCP server.
@@ -98,7 +98,7 @@ let server = Net.createServer(function (connection) {
         break;
       case "MIDDLEWARE":
         console.log("working....");
-        break;
+        return "working...";
       case "ISMARKING":
         let returnValue2 = await testScapsCommands(client, isMarking());
         console.log(returnValue2);

@@ -3,20 +3,23 @@ const server = require("./server");
 const net = require("net");
 const app = express();
 
-app.get("/data", (req, res) => {
-  const clients = net.connect({ port: 5050, host: "192.168.1.102" }, () => {
+app.use(express.json());
+
+app.post("/commands", async (req, res) => {
+  const clients = net.connect({ port: 5050, host: "0.0.0.0" }, () => {
     // 'connect' listener
-    console.log("connected to server!");
-    clients.write("MIDDLEWARE\n");
+    console.log(req.body);
+    clients.write(req.body);
   });
-  clients.on("data", (data) => {
-    console.log(data.toString());
+  clients.once("data", (data) => {
+    res.status(200).send({ data: data.toString() });
     clients.end();
   });
-  clients.on("end", () => {
+  clients.once("end", () => {
     console.log("disconnected from server");
   });
-  res.status(200).send({ hello: "world" });
 });
 
-app.listen(5132);
+app.listen(5132, () => {
+  console.log("Web-server connected --- ");
+});
