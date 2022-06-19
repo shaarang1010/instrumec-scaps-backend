@@ -43,7 +43,7 @@ const formatData = (data, clientName) => {
       hopper: printJob[0],
       patientNumber: printJob[2],
       patientName: printJob[3],
-      specimen: `${printJob[4]}${printJob[5]}`,
+      specimen: `${printJob[4]}.${printJob[5]}`,
       stringData: printJob.toString()
     });
 

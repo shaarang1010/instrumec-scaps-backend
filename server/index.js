@@ -51,6 +51,7 @@ const printJob = (item) => {
       ]);
       let setOfInstructions = [
         loadEntityDataToTemplate("hopperNumber", patientData.hopper),
+        loadEntityDataToTemplate("patientNumber", `T22/${patientData.patientNumber}`),
         loadEntityDataToTemplate("patientName", patientData.patientName),
         loadEntityDataToTemplate("specimen", patientData.specimen),
         loadEntityDataToTemplate("barcode", patientData.patientNumber),
@@ -98,7 +99,7 @@ let server = Net.createServer(function (connection) {
         break;
       case "MIDDLEWARE":
         console.log("working....");
-        return "working...";
+        return new Promise((resolve, reject) => resolve("working..."));
       case "ISMARKING":
         let returnValue2 = await testScapsCommands(client, isMarking());
         console.log(returnValue2);

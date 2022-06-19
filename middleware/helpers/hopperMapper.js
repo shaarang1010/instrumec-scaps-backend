@@ -7,17 +7,17 @@ const maptoHopper = (hopperNumber) => {
   let hopper = "";
   let index = 0;
   let isAlternativeHopperEmpty = false;
-  if (hopperCount[hopperNumber - 1] > 5) {
+  if (hopperCount[hopperNumber - 1] > 3) {
     index = hopperNumber - 1;
     hopper = hopperNumber;
-  } else if (hopperCount[hopperNumber - 1] === 0 || hopperCount[hopperNumber - 1] <= 5) {
+  } else if (hopperCount[hopperNumber - 1] === 0 || hopperCount[hopperNumber - 1] <= 3) {
     let alternativeHoppers = { ...hoppers };
     const selectedColor = lodash.get(alternativeHoppers, `H${hopperNumber}`);
     delete alternativeHoppers[`H${hopperNumber}`];
     const alternateColor = Object.keys(alternativeHoppers).find((key) => alternativeHoppers[key] === selectedColor);
     index = Object.keys(alternativeHoppers).indexOf(alternateColor) + 1;
     hopper = alternateColor.replace("H", "");
-    if (hopperCount[index] <= 5) {
+    if (hopperCount[index] <= 3) {
       isAlternativeHopperEmpty = true;
     }
   }
